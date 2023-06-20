@@ -40,20 +40,19 @@ function drawWalls(){
     tile[x][0] = 0; // works
 
     draw(x*tileSize, numRows*tileSize,'purple');
-    //console.log(" purple tile")
     tile[x][numRows] = 0; // works
   });
 
   // left wall
   tile[0].forEach((_, y) => {
     draw(0, y*tileSize,'blue');
-    //tile[0][y] = 0;
+    //tile[0][y] = 0;     // does not work
   });
 
   // right wall
   tile[numRows].forEach((_, y) => {
     draw(numCols*tileSize, y*tileSize,'green');
-    //tile[numCols][y] = 0;
+    //tile[numCols][y] = 0;  // also does not work
   });
 }
 
