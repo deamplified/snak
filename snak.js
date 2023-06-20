@@ -24,17 +24,19 @@ function drawBoard() {
 
 function drawWalls(){
   tile.forEach((_, i) => {
-    draw(i*tileSize,0,'blue');
+    draw(i*tileSize,0,'red');
+    tile[i][0] = 0;
+
+    draw(i*tileSize, numRows*tileSize-tileSize,'purple');
+    tile[i][numRows] = 0;
   });
+
   tile[0].forEach((_, i) => {
-    draw(numCols*tileSize-tileSize, i*tileSize,'blue');
-  });
-  tile.forEach((_, i) => {
-    draw(i*tileSize, numRows*tileSize-tileSize,'blue');
-    this[i] = 0;
-  });
-  tile[0].forEach((_, i) => {
-    draw(0, i*tileSize,'blue');
+    draw(0, i*tileSize-tileSize,'blue');
+    //tile[0][i] = 0;
+
+    draw(numCols*tileSize, i*tileSize-tileSize,'green');
+    //tile[numCols][i] = 0;
   });
 }
 
