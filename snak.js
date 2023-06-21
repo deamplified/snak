@@ -10,7 +10,6 @@ const numRows = Math.floor(numCols*(canvas.height/canvas.width));
 const tileSize = Math.floor(canvas.width/numCols); //in px
 
 // 2d state index[x][y] === xy coords of tile
-//let tile = new Array(numCols);
 let tile = new Array(numCols).fill(null).map(() => (new Array(numRows).fill(null)));
 
 // draw/redraw tile
@@ -34,23 +33,22 @@ function drawWalls(){
   // top and bottom walls
   tile.forEach((_, x) => {
     draw(x*tileSize,0,'red');
-    console.log(" red tiles")
-    tile[x][0] = 0; // works
+    tile[x][0] = 0;
 
     draw(x*tileSize, numRows*tileSize,'purple');
-    tile[x][numRows] = 0; // works
+    tile[x][numRows] = 0;
   });
 
   // left wall
   tile[0].forEach((_, y) => {
     draw(0, y*tileSize,'blue');
-    tile[0][y] = 0;     // does not work
+    tile[0][y] = 0;
   });
 
   // right wall
   tile[numRows].forEach((_, y) => {
     draw(numCols*tileSize, y*tileSize,'green');
-    tile[numCols-1][y] = 0;  // also does not work
+    tile[numCols-1][y] = 0;
   });
 }
 
