@@ -1,4 +1,3 @@
-
 // canvas setup
 const view = document.querySelector('canvas');
 const grid = view.getContext('2d');
