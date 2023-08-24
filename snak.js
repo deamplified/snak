@@ -1,16 +1,29 @@
+
+// canvas setup
 const view = document.querySelector('canvas');
-view.width = window.innerWidth; view.height = window.innerHeight;
 const grid = view.getContext('2d');
-const cols = 100; const rows = Math.floor(cols*(view.height/view.width));
+
+view.width = window.innerWidth;
+view.height = window.innerHeight;
+
+// grid setup
+const cols = 100; 
+const rows = Math.floor(cols*(view.height/view.width));
 const size = Math.floor(view.width/cols);
+
+// bearing init
 let axis = true;
 let face = 'n';
+
+// snake init
 let head = [Math.floor(cols/2), Math.floor(rows/2)];
 let tail = [];
 let tile = new Array(cols).fill(null).map(() => (new Array(rows).fill(null)));
 tile[head[0]][head[1]] = 1;
+let snak = true;
 
-function board(){
+// board draw
+function board() {
   grid.fillStyle = '#110';
   grid.fillRect(0, 0, view.width, view.height);
   tile.forEach((_, x) => {
@@ -29,16 +42,19 @@ function board(){
   });
 }
 
+// snake draw
 function draw(x,y,color) {
   grid.fillStyle = color;
   grid.fillRect(x, y, size, size);
 }
 
+// draw new head
 function drawHead() {
   tail.push(head);
   draw(head[0]*size, head[1]*size, '#990');
 }
 
+// advance head
 function advHead(){
   tile[head[0]][head[1]] = 0;
   switch (face) {
@@ -49,15 +65,25 @@ function advHead(){
   }
 }
 
+//    tile[x][0] = 0;
+
+// remove tail
 function remTail(){
-  draw(tail[0][0]*size, tail[0][1]*size, '#110');
-  tile[tail[0][0]][tail[0][1]] = null;
-  tail.shift();
-  console.log(`${tail}`)
+  if (snak == true) {
+    snak = false;
+    console.log(...tail)
+  } else { 
+    draw(tail[0][0]*size, tail[0][1]*size, '#110');
+    tile[tail[0][0]][tail[0][1]] = null;
+    tail.shift();
+    console.log(...tail)
+  }
   advHead();
 }
 
+// detect collision
 function evalHead(h) {
+  console.log(h);
   h !== 0 ?
     h > 0 ? 
       advHead()
@@ -65,30 +91,38 @@ function evalHead(h) {
     : location.reload();
 }
 
+// listen for input / detect collision / draw new head 
 function turn() {
   document.addEventListener("keydown", function(dir) {
     if (axis)  {
       switch(dir.key) {
-        case "ArrowLeft ": { axis = false; face = 'w'; break; }
-        case "ArrowRight": { axis = false; face = 'e'; break; }
+        case "ArrowLeft": { axis = false; face = 'w'; console.log("LEFT"); break; }
+        case "ArrowRight": { axis = false; face = 'e'; console.log("RIGHT"); break; }
         }
       } else {
       switch(dir.key) {
-        case "ArrowUp"   : { axis = true;  face = 'n'; break; }
-        case "ArrowDown" : { axis = true;  face = 's'; break; }
+        case "ArrowUp"   : { axis = true;  face = 'n'; console.log("UP"); break; }
+        case "ArrowDown" : { axis = true;  face = 's'; console.log("DOWN"); break; }
         }
       }
     });
+
+    console.log(tile[head[0]][head[1]]);
+    
+
     evalHead(tile[head[0]][head[1]]);
     drawHead(tile[head[0]][head[1]]);
+
     setTimeout( () => {
     requestAnimationFrame(turn);
-  }, 100);
+  }, 3000);
 }
 
+// start a game
 function start() {
   board();
   turn();
 }
 
+// run
 start();
