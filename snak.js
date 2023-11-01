@@ -1,154 +1,104 @@
-// canvas setup
 const view = document.querySelector("canvas");
 const grid = view.getContext("2d");
-
 view.width = window.innerWidth;
 view.height = window.innerHeight;
-
-// grid setup
-const cols = 100;
-const rows = Math.floor(cols * (view.height / view.width));
-const size = Math.floor(view.width / cols);
-
-// bearing init
-let axis = true;
-let face = "n";
-
-// snake init
+const wide = view.width >= view.height;
+const res = 50;
+const size = wide ? Math.floor(view.width / res) : Math.floor(view.height / res);
+const cols = Math.floor(view.width / size-1);
+const rows = Math.floor(view.height / size-1);
 let head = [Math.floor(cols / 2), Math.floor(rows / 2)];
 let tail = [];
+let bearing = [1,0];
+let snak;
+let velo = 200;
 let tile = new Array(cols).fill(null).map(() => new Array(rows).fill(null));
-tile[head[0]][head[1]] = 1;
-let snak = true;
 
-// board draw
-function board() {
-    grid.fillStyle = "#110";
-    grid.fillRect(0, 0, view.width, view.height);
+function drawBoard() {
+    grid.fillStyle = "#111";
+    grid.fillRect(0, 0, cols*size+size, rows*size+size);
     tile.forEach((_, x) => {
-        draw(x * size, 0, "#665");
-        tile[x][0] = 0;
-        draw(x * size, rows * size, "#665");
-        tile[x][rows] = 0;
+      tile[x][0] = 0;
+      draw(x * size, 0, "#222");
+      tile[x][rows] = 0;
+      draw(x * size, rows * size, "#222");
     });
     tile[0].forEach((_, y) => {
-        draw(0, y * size, "#665");
-        tile[0][y] = 0;
+      tile[0][y] = 0;
+      draw(0, y * size, "#222");
     });
-    tile[rows].forEach((_, y) => {
-        draw(cols * size, y * size, "#665");
-        tile[cols - 1][y] = 0;
+    tile[cols-1].forEach((_, y) => {
+      tile[cols-1][y] = 0;
+      draw(cols * size, y * size, "#222");
     });
+    drawHead();
 }
 
-// snake draw
 function draw(x, y, color) {
-    grid.fillStyle = color;
-    grid.fillRect(x, y, size, size);
+  grid.fillStyle = color;
+  grid.fillRect(x, y, size, size);
 }
 
-// draw new head
 function drawHead() {
-    tail.push(head);
-    draw(head[0] * size, head[1] * size, "#990");
+  draw(head[0] * size, head[1] * size, "#070");
 }
 
-// advance head
 function advHead() {
-    tile[head[0]][head[1]] = 0;
-    switch (face) {
-        case "w": {
-            head[0] -= 1;
-            break;
-        }
-        case "e": {
-            head[0] += 1;
-            break;
-        }
-        case "n": {
-            head[1] -= 1;
-            break;
-        }
-        case "s": {
-            head[1] += 1;
-            break;
-        }
-    }
+  bearing[1] ? head[bearing[0]]++ : head[bearing[0]]--;
 }
 
-//    tile[x][0] = 0;
-
-// remove tail
 function remTail() {
-    if (snak == true) {
-        snak = false;
-        console.log(...tail);
-    } else {
-        draw(tail[0][0] * size, tail[0][1] * size, "#110");
-        tile[tail[0][0]][tail[0][1]] = null;
-        tail.shift();
-        console.log(...tail);
-    }
-    advHead();
+  tail.push([...head]);
+  tile[tail[0][0]][tail[0][1]] = null;
+  draw(tail[0][0] * size, tail[0][1] * size, "#111");
+  !snak ? tail.shift() : drawSnak();
 }
 
-// detect collision
-function evalHead(h) {
-    console.log(h);
-    h !== 0 ? (h > 0 ? advHead() : remTail()) : location.reload();
+function evalHead() {
+  h = tile[head[0]][head[1]];
+  h=== 0 ? location.reload()
+    : h ? snak = true
+  : snak = false;
+  h = 0;
 }
 
-// listen for input / detect collision / draw new head
+function drawSnak() {
+  let x = Math.floor(Math.random()*(cols-2)+1);
+  let y = Math.floor(Math.random()*(rows-2)+1);
+  tile[x][y] = 1;
+  draw(x * size, y * size, "#500");
+  velo -= 10;
+}
+
 function turn() {
-    document.addEventListener("keydown", function (dir) {
-        if (axis) {
-            switch (dir.key) {
-                case "ArrowLeft": {
-                    axis = false;
-                    face = "w";
-                    console.log("LEFT");
-                    break;
-                }
-                case "ArrowRight": {
-                    axis = false;
-                    face = "e";
-                    console.log("RIGHT");
-                    break;
-                }
-            }
-        } else {
-            switch (dir.key) {
-                case "ArrowUp": {
-                    axis = true;
-                    face = "n";
-                    console.log("UP");
-                    break;
-                }
-                case "ArrowDown": {
-                    axis = true;
-                    face = "s";
-                    console.log("DOWN");
-                    break;
-                }
-            }
-        }
-    });
-
-    console.log(tile[head[0]][head[1]]);
-
-    evalHead(tile[head[0]][head[1]]);
-    drawHead(tile[head[0]][head[1]]);
-
-    setTimeout(() => {
-        requestAnimationFrame(turn);
-    }, 3000);
+  document.addEventListener("keydown", (k) => {
+    if (bearing[0]) {  
+      switch (k.key) {
+        case "ArrowRight": { bearing = [0,1]; break; }
+        case "ArrowLeft": { bearing = [0,0]; break; }
+      }
+    } else {
+      switch (k.key) {
+        case "ArrowUp": { bearing = [1,0]; break; }
+        case "ArrowDown": { bearing = [1,1]; break; }
+      }
+    }
+  });
+  remTail();
+  advHead();
+  drawHead();
+  evalHead();
+  
+  setTimeout(() => {
+    requestAnimationFrame(turn);
+  }, velo);
 }
 
-// start a game
-function start() {
-    board();
-    turn();
+function startGame() {
+  drawBoard();
+  drawSnak();
+  turn();
 }
 
-// run
-start();
+startGame();
+
