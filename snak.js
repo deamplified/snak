@@ -55,11 +55,11 @@ function remTail() {
 }
 
 function evalHead() {
-  h = tile[head[0]][head[1]];
-  h=== 0 ? location.reload()
+  const h = tile[head[0]][head[1]];
+  h === 0 ? location.reload()
     : h ? snak = true
   : snak = false;
-  h = 0;
+  tile[head[0]][head[1]] = 0;
 }
 
 function drawSnak() {
@@ -71,16 +71,20 @@ function drawSnak() {
 }
 
 function turn() {
-  document.addEventListener("keydown", (k) => {
-    if (bearing[0]) {  
-      switch (k.key) {
-        case "ArrowRight": { bearing = [0,1]; break; }
-        case "ArrowLeft": { bearing = [0,0]; break; }
-      }
-    } else {
-      switch (k.key) {
-        case "ArrowUp": { bearing = [1,0]; break; }
-        case "ArrowDown": { bearing = [1,1]; break; }
+  console.log(head, bearing)
+  let p = false;
+document.addEventListener("keydown", (k) => {
+    if (p = true) { 
+      if (bearing[0]) {  
+        switch (k.key) {
+          case "ArrowRight": { bearing = [0,1]; p = false; break; }
+          case "ArrowLeft": { bearing = [0,0]; p = false; break; }
+        }
+      } else {
+        switch (k.key) {
+          case "ArrowUp": { bearing = [1,0]; p = false; break; }
+          case "ArrowDown": { bearing = [1,1]; p = false; break; }
+        }
       }
     }
   });
